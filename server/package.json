@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "start": "tsc && node dist/index.js"
+    "start": "tsc && PORT=9999 node dist/index.js"
   },
   "author": "",
   "license": "MIT",

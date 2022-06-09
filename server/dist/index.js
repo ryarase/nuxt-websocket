@@ -6,7 +6,8 @@ import { PubSub } from 'graphql-subscriptions';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
-const PORT = 4000;
+console.log(process.env.PORT);
+const PORT = process.env.PORT || 4000;
 const pubsub = new PubSub();
 // Schema definition
 const typeDefs = gql `
