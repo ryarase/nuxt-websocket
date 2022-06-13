@@ -1,43 +1,12 @@
 import { createServer } from 'http'
 import express from 'express'
-import { ApolloServer, gql } from 'apollo-server-express'
+import { ApolloServer } from 'apollo-server-express'
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core'
-import { PubSub } from 'graphql-subscriptions'
-import { makeExecutableSchema } from '@graphql-tools/schema'
 import { WebSocketServer } from 'ws'
 import { useServer } from 'graphql-ws/lib/use/ws'
+import schema from './schema.js'
 
 const PORT = process.env.PORT || 4000
-const pubsub = new PubSub()
-
-// Schema definition
-const typeDefs = gql`
-  type Query {
-    currentNumber: Int
-  }
-
-  type Subscription {
-    numberIncremented: Int
-  }
-`
-
-// Resolver map
-const resolvers = {
-  Query: {
-    currentNumber() {
-      return currentNumber
-    },
-  },
-  Subscription: {
-    numberIncremented: {
-      subscribe: () => pubsub.asyncIterator(['NUMBER_INCREMENTED']),
-    },
-  },
-}
-
-// Create schema, which will be used separately by ApolloServer and
-// the WebSocket server.
-const schema = makeExecutableSchema({ typeDefs, resolvers })
 
 // Create an Express app and HTTP server; we will attach the WebSocket
 // server and the ApolloServer to this HTTP server.
@@ -78,14 +47,3 @@ httpServer.listen(PORT, () => {
   console.log(`🚀 Query endpoint ready at http://localhost:${PORT}${server.graphqlPath}`)
   console.log(`🚀 Subscription endpoint ready at ws://localhost:${PORT}${server.graphqlPath}`)
 })
-
-// In the background, increment a number every second and notify subscribers when
-// it changes.
-let currentNumber = 0
-function incrementNumber() {
-  currentNumber++
-  pubsub.publish('NUMBER_INCREMENTED', { numberIncremented: currentNumber })
-  setTimeout(incrementNumber, 1000)
-}
-// Start incrementing
-incrementNumber()
